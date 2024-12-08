@@ -9,6 +9,7 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
+        <module>cache-aside-pattern</module>
     </modules>
 
     <properties>
@@ -48,12 +49,6 @@
             </dependency>
             <!-- Log End -->
 
-            <dependency>
-                <groupId>org.antlr</groupId>
-                <artifactId>antlr4-runtime</artifactId>
-                <version>${antlr4.version}</version>
-            </dependency>
-
             <!-- Unit Test Start -->
             <dependency>
                 <groupId>org.junit</groupId>
@@ -75,6 +70,7 @@
                     <version>${spotless-maven-plugin.version}</version>
                     <configuration>
                         <java>
+                            <importOrder />
                             <removeUnusedImports/>
                             <eclipse>
                                 <file>${maven.multiModuleProjectDirectory}/src/resources/spotless/java-style.xml</file>
