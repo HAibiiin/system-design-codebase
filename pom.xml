@@ -9,6 +9,7 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
+        <module>cache-aside-pattern</module>
     </modules>
 
     <properties>
@@ -21,6 +22,7 @@
         <junit.version>5.8.2</junit.version>
 
         <spotless-maven-plugin.version>2.43.0</spotless-maven-plugin.version>
+        <surefire-maven-plugin.version>3.5.2</surefire-maven-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -48,12 +50,6 @@
             </dependency>
             <!-- Log End -->
 
-            <dependency>
-                <groupId>org.antlr</groupId>
-                <artifactId>antlr4-runtime</artifactId>
-                <version>${antlr4.version}</version>
-            </dependency>
-
             <!-- Unit Test Start -->
             <dependency>
                 <groupId>org.junit</groupId>
@@ -75,6 +71,7 @@
                     <version>${spotless-maven-plugin.version}</version>
                     <configuration>
                         <java>
+                            <importOrder />
                             <removeUnusedImports/>
                             <eclipse>
                                 <file>${maven.multiModuleProjectDirectory}/src/resources/spotless/java-style.xml</file>
@@ -84,6 +81,11 @@
                             </licenseHeader>
                         </java>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${surefire-maven-plugin.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
