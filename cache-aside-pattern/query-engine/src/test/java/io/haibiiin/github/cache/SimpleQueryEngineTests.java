@@ -20,6 +20,7 @@ import io.haibiiin.github.query.engine.DatabasePhase;
 import io.haibiiin.github.query.engine.SimpleQueryEngine;
 import io.haibiiin.github.query.engine.cache.CacheCommands;
 import io.haibiiin.github.query.engine.cache.jedis.JedisWrapper;
+import io.haibiiin.github.query.engine.cache.jedis.lease.LeaseWrapper;
 import io.haibiiin.github.query.engine.cache.map.MapWrapper;
 import java.io.IOException;
 import org.junit.jupiter.api.Assertions;
@@ -29,6 +30,22 @@ import org.junit.jupiter.api.Test;
 import redis.clients.jedis.Jedis;
 
 public class SimpleQueryEngineTests {
+    
+    @Disabled("Disabled until redis server up!")
+    @DisplayName("Operate Redis based on Jedis use lease approach")
+    @Test
+    public void testLeaseWrapper() throws IOException {
+        RedisConnectionEnvInfo redisInfo = new RedisConnectionEnvInfo();
+        Jedis jedis = new Jedis(redisInfo.host(), redisInfo.port());
+        SimpleQueryEngine<String, String> engine = new SimpleQueryEngine<>(
+                new SampleCachePhase(
+                        new LeaseWrapper(new JedisWrapper(jedis))),
+                new SampleDatabasePhase());
+        String result = engine.get("test");
+        Assertions.assertEquals("key:test, value:sample value", result);
+        jedis.del("test", "lease:test");
+        jedis.close();
+    }
     
     @Disabled("Disabled until redis server up!")
     @DisplayName("Operate Redis based on Jedis")
@@ -42,6 +59,8 @@ public class SimpleQueryEngineTests {
                 new SampleDatabasePhase());
         String result = engine.get("test");
         Assertions.assertEquals("key:test, value:sample value", result);
+        jedis.del("test");
+        jedis.close();
     }
     
     @DisplayName("Base on ConcurrentMap cache")
