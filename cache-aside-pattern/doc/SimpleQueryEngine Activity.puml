@@ -1,0 +1,20 @@
+@startuml
+'https://plantuml.com/activity-diagram-beta
+
+start
+:SimpleQueryEngine.get();
+:cachePhase.get();
+
+if (result == null) then (true)
+  :databasePhase.get();
+
+  if (result == null) then (true)
+    stop
+  endif
+
+  :cachePhase.set();
+endif
+
+stop
+
+@enduml

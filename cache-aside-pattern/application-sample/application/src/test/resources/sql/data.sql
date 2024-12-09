@@ -1,0 +1,1 @@
+INSERT INTO sku_info (name, data_timestamp) VALUES ('some_thing', CURRENT_TIMESTAMP);
