@@ -20,7 +20,6 @@ import io.haibiiin.github.sku.adaptor.SkuRepositoryAdaptor;
 import io.haibiiin.github.sku.domain.Sku;
 import java.io.IOException;
 import java.sql.SQLException;
-
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,13 +27,13 @@ import org.slf4j.LoggerFactory;
 public class SkuApplicationServiceTests extends H2DatabaseEnvironment {
     
     private final Logger log = LoggerFactory.getLogger(SkuApplicationServiceTests.class);
-
+    
     @BeforeEach
     public void setUp() {
         super.startH2Server();
         super.initializeSchema("/sql/schema.sql");
         super.initializeData("/sql/data.sql");
-
+        
         Initializer initializer;
         try {
             initializer = new Initializer("test.properties");
@@ -44,18 +43,18 @@ public class SkuApplicationServiceTests extends H2DatabaseEnvironment {
         }
         container = initializer.container();
     }
-
+    
     @DisplayName("Base on database get data")
     @Test
     public void testGet() {
         SkuRepositoryAdaptor adaptor = (SkuRepositoryAdaptor) container.get("skuRepositoryAdaptor");
         SkuAppService service = new SkuAppService(adaptor);
-
+        
         Sku sku = service.get(1L);
         Assertions.assertNotNull(sku);
         Assertions.assertEquals(1, sku.id());
     }
-
+    
     @AfterEach
     public void tearDown() throws SQLException {
         super.stopH2Server();

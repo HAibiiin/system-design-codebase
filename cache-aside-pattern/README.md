@@ -44,3 +44,11 @@ mvn clean test
 ## Query Engine 设计
 
 在 `/doc` 目录下存放着基于 plantuml 的 Query Engine 设计文件，并未设计出全部可能用到的内容，仅满足核心思想为设计提供参考。
+
+## 简单 Cache-aside 模式查询场景示例
+
+在模块 `query-engine` 中 `/cache` 包路径下定义 `CacheCommands` 接口，目的是为了抽象出不同缓存操作组件，方便基于实际情况替换不同的实现。
+
+在单元测试 `SimpleQueryEngineTests.java` 中我们基于 Query Engine 的设计中缓存与数据库操作的两个阶段，提供了两个简易的实现，分别为 `SampleCachePhase` 和 `SampleDatabasePhase` 。
+
+在测试用例 `testJedisWrapper()` 和 `testMapWrapper` 演示了基于 `CacheCommands` 的多样性。其中 `testJedisWrapper()` 的运行需要依赖本地的 Redis 服务。
