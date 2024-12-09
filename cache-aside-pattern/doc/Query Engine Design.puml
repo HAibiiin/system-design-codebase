@@ -1,0 +1,23 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+interface CachePhase<T,R> {
+    + T get(R r)
+    + void set(R r, T t)
+}
+interface DatabasePhase<T,R> {
+    + T get(R r)
+}
+interface QueryCommands<T,R> {
+    + T get(R r)
+}
+
+class SimpleQueryEngine<T,R> {
+    + T get(R r)
+}
+
+QueryCommands <|.. SimpleQueryEngine
+SimpleQueryEngine *-- CachePhase
+SimpleQueryEngine *-- DatabasePhase
+
+@enduml
