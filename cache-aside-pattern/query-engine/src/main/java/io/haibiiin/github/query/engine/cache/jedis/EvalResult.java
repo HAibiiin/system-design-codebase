@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.haibiiin.github.query.engine.cache.jedis.lease;
+package io.haibiiin.github.query.engine.cache.jedis;
 
 import java.util.List;
 
@@ -32,7 +32,11 @@ public class EvalResult {
         }
     }
     
-    public String getValue() {
+    public boolean effect() {
+        return effect;
+    }
+    
+    public String value() {
         return value;
     }
 }

@@ -20,4 +20,8 @@ public interface CacheCommands {
     String get(String key);
     
     String set(String key, String value);
+    
+    default String set(String key, String value, String version) {
+        return null;
+    }
 }

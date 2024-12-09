@@ -17,6 +17,7 @@ package io.haibiiin.github.query.engine.cache.jedis.lease;
 
 import io.haibiiin.github.query.engine.cache.CacheCommands;
 import io.haibiiin.github.query.engine.cache.LuaScripts;
+import io.haibiiin.github.query.engine.cache.jedis.EvalResult;
 import java.util.List;
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -50,8 +51,8 @@ public class LeaseWrapper extends Jedis implements CacheCommands {
         log.debug("Call redis eval command, key:{}, token:{}", key, token);
         Object result = this.jedis.eval(LuaScripts.leaseGet(), List.of(key), List.of(token));
         EvalResult er = new EvalResult((List<?>) result);
-        if (er.effect) {
-            return er.getValue();
+        if (er.effect()) {
+            return er.value();
         }
         return null;
     }
@@ -63,8 +64,8 @@ public class LeaseWrapper extends Jedis implements CacheCommands {
         log.debug("Call redis eval command, key:{}, token:{}, value:{}", key, token, value);
         Object result = this.jedis.eval(LuaScripts.leaseSet(), List.of(key), List.of(token, value));
         EvalResult er = new EvalResult((List<?>) result);
-        if (er.effect) {
-            return er.getValue();
+        if (er.effect()) {
+            return er.value();
         }
         return null;
     }

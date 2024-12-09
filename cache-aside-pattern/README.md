@@ -68,3 +68,19 @@ mvn clean test
 ## 应用层样例调整
 
 应用层代码无需变得，只需要调整初始化装配即可。我们通过在 `SkuApplicationServiceTests`中的`testGet_from_SkuRepositoryCacheAsideAdaptor_use_LeaseWrapper()`方法来调整装配模拟这个过程，同样这个测试用例的运行需要依赖本地的 Redis 服务。
+
+## 简单 Cache-aside 模式基于 version 方式查询场景示例
+
+该方式借鉴与 [Uber](https://www.uber.com/en-JP/blog/how-uber-serves-over-40-million-reads-per-second-using-an-integrated-cache/) 的方案。
+
+> **Deduplicating Cache Writes Between Query Engine and Flux**
+>
+> However, the above cache invalidation strategy has a flaw. Since writes happen to the cache simultaneously between the read path as well as the write path, it is possible that we inadvertently write a stale row to the cache, overwriting the newest value that was retrieved from the database. To solve this, we deduplicate writes based on the timestamp of the row set in MySQL, which effectively serves as its version. The timestamp is parsed out from the encoded row value in Redis (see later section on codec).
+>
+> Redis supports executing custom Lua scripts atomically using the [EVAL](https://redis.io/commands/eval/) command. This script takes the same parameters as [MSET](https://redis.io/commands/eval/), however, it also performs the deduplication logic, checking the timestamp values of any rows already written to the cache and ensuring that the value to be written is newer. By using EVAL, all of this can be performed in a single request instead of requiring multiple round trips between the query engine layer and cache.
+
+除了提供一个 `versionSet()` 脚本与 `VersionWrapper` 实现以外，因为存在版本号的缘故，所以需要扩展 `CacheCommands` 接口中的方法。
+
+在单元测试中，提供了 `VersionCachePhase` 来调用 `CacheCommands` 中新增的带有版本号的 `set(String key, String value, String version)` 方法。
+
+该实现未提供对应的应用层修改，如有兴趣可自行尝试。
