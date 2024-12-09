@@ -21,6 +21,7 @@ import io.haibiiin.github.query.engine.SimpleQueryEngine;
 import io.haibiiin.github.query.engine.cache.CacheCommands;
 import io.haibiiin.github.query.engine.cache.jedis.JedisWrapper;
 import io.haibiiin.github.query.engine.cache.jedis.lease.LeaseWrapper;
+import io.haibiiin.github.query.engine.cache.jedis.version.VersionWrapper;
 import io.haibiiin.github.query.engine.cache.map.MapWrapper;
 import java.io.IOException;
 import org.junit.jupiter.api.Assertions;
@@ -30,6 +31,23 @@ import org.junit.jupiter.api.Test;
 import redis.clients.jedis.Jedis;
 
 public class SimpleQueryEngineTests {
+    
+    @Disabled("Disabled until redis server up!")
+    @DisplayName("Operate Redis based on Jedis use version approach")
+    @Test
+    public void testVersionWrapper() throws IOException {
+        RedisConnectionEnvInfo redisInfo = new RedisConnectionEnvInfo();
+        Jedis jedis = new Jedis(redisInfo.host(), redisInfo.port());
+        SimpleQueryEngine<String, String> engine = new SimpleQueryEngine<>(
+                new VersionCachePhase(
+                        new VersionWrapper(new JedisWrapper(jedis))),
+                new SampleDatabasePhase());
+        String result = engine.get("test");
+        Assertions.assertEquals("key:test, value:sample value", result);
+        Assertions.assertNotNull(jedis.get("version:test"));
+        jedis.del("test", "version:test");
+        jedis.close();
+    }
     
     @Disabled("Disabled until redis server up!")
     @DisplayName("Operate Redis based on Jedis use lease approach")
@@ -74,6 +92,26 @@ public class SimpleQueryEngineTests {
         Assertions.assertEquals("key:test, value:sample value", result);
         result = engine.get("test");
         Assertions.assertEquals("key:test, value:sample value from cache", result);
+    }
+    
+    class VersionCachePhase implements CachePhase<String, String> {
+        
+        CacheCommands cache;
+        
+        public VersionCachePhase(CacheCommands cache) {
+            this.cache = cache;
+        }
+        
+        @Override
+        public String get(String key) {
+            return cache.get(key);
+        }
+        
+        @Override
+        public void set(String s, String s2) {
+            // In a real-world scenario, the version parameter should be obtained from s2.
+            this.cache.set(s, s2, String.valueOf(System.currentTimeMillis()));
+        }
     }
     
     class SampleCachePhase implements CachePhase<String, String> {

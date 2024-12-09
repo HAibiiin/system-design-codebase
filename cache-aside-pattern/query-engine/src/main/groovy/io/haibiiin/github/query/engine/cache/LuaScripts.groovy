@@ -34,4 +34,20 @@ class LuaScripts {
             end
         """
     }
+
+    static String versionSet() {
+        return """
+            local key = KEYS[1]
+            local value = ARGV[1]
+            local current_version = ARGV[2]
+            local version_key = 'version:'..key
+            local version_value = redis.call('get', version_key)
+            if version_value == false or version_value < current_version then
+                redis.call('mset', version_key, current_version, key, value)
+                return {value, true}
+            else
+                return {false, false}
+            end
+        """
+    }
 }
