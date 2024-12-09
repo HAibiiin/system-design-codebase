@@ -3,7 +3,7 @@
 查看[关联 issue](https://github.com/HAibiiin/system-design-codebase/issues/1)了解开发内容以及每次 `commit` 变化。通过以下命令运行与检测结果：
 
 ```shell
-mvn clean test
+mvnw clean test
 ```
 
 ## 应用层样例
