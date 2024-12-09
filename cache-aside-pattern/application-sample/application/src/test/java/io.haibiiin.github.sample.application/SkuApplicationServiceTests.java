@@ -24,14 +24,13 @@ import io.haibiiin.github.sku.adaptor.SkuRepositoryAdaptor;
 import io.haibiiin.github.sku.adaptor.SkuRepositoryCacheAsideAdaptor;
 import io.haibiiin.github.sku.adaptor.SkuRepositoryCachePhase;
 import io.haibiiin.github.sku.domain.Sku;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.Properties;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
-
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.Properties;
 
 public class SkuApplicationServiceTests extends H2DatabaseEnvironment {
     
@@ -76,7 +75,7 @@ public class SkuApplicationServiceTests extends H2DatabaseEnvironment {
         CacheCommands cacheCommands = (CacheCommands) container.get("cacheWrapper");
         Assertions.assertEquals("1,some_thing from cache", cacheCommands.get("1"));
     }
-
+    
     @Disabled("Disabled until redis server up!")
     @DisplayName("lease")
     @Test
@@ -92,16 +91,16 @@ public class SkuApplicationServiceTests extends H2DatabaseEnvironment {
                         new SkuRepositoryCachePhase((CacheCommands) this.container.get("cacheWrapper")),
                         (SkuRepositoryAdaptor) this.container.get("skuRepositoryAdaptor")));
         this.container.put("skuRepositoryCacheAsideAdaptor", skuRepositoryCacheAsideAdaptor);
-
+        
         SkuRepositoryCacheAsideAdaptor adaptor = (SkuRepositoryCacheAsideAdaptor) container.get("skuRepositoryCacheAsideAdaptor");
         SkuAppService service = new SkuAppService(adaptor);
-
+        
         Sku sku = service.get(1L);
         Assertions.assertNotNull(sku);
         Assertions.assertEquals(1, sku.id());
         CacheCommands cacheCommands = (CacheCommands) container.get("cacheWrapper");
         Assertions.assertEquals("1,some_thing", cacheCommands.get("1"));
-
+        
         jedis.del("1", "lease:1");
         jedis.close();
     }
