@@ -15,16 +15,23 @@
  */
 package io.haibiiin.github.sample.application;
 
+import io.haibiiin.github.query.engine.SimpleQueryEngine;
 import io.haibiiin.github.query.engine.cache.CacheCommands;
+import io.haibiiin.github.query.engine.cache.jedis.JedisWrapper;
+import io.haibiiin.github.query.engine.cache.jedis.lease.LeaseWrapper;
 import io.haibiiin.github.sample.application.sku.SkuAppService;
 import io.haibiiin.github.sku.adaptor.SkuRepositoryAdaptor;
 import io.haibiiin.github.sku.adaptor.SkuRepositoryCacheAsideAdaptor;
+import io.haibiiin.github.sku.adaptor.SkuRepositoryCachePhase;
 import io.haibiiin.github.sku.domain.Sku;
-import java.io.IOException;
-import java.sql.SQLException;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import redis.clients.jedis.Jedis;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.Properties;
 
 public class SkuApplicationServiceTests extends H2DatabaseEnvironment {
     
@@ -68,6 +75,35 @@ public class SkuApplicationServiceTests extends H2DatabaseEnvironment {
         Assertions.assertEquals(1, sku.id());
         CacheCommands cacheCommands = (CacheCommands) container.get("cacheWrapper");
         Assertions.assertEquals("1,some_thing from cache", cacheCommands.get("1"));
+    }
+
+    @Disabled("Disabled until redis server up!")
+    @DisplayName("lease")
+    @Test
+    public void testGet_from_SkuRepositoryCacheAsideAdaptor_use_LeaseWrapper() throws IOException {
+        Properties properties = new Properties();
+        properties.load(this.getClass().getResourceAsStream("/test-env.properties"));
+        String host = properties.getProperty("host");
+        int port = Integer.parseInt(properties.getProperty("port"));
+        Jedis jedis = new Jedis(host, port);
+        this.container.put("cacheWrapper", new LeaseWrapper(new JedisWrapper(jedis)));
+        SkuRepositoryCacheAsideAdaptor skuRepositoryCacheAsideAdaptor = new SkuRepositoryCacheAsideAdaptor(
+                new SimpleQueryEngine<>(
+                        new SkuRepositoryCachePhase((CacheCommands) this.container.get("cacheWrapper")),
+                        (SkuRepositoryAdaptor) this.container.get("skuRepositoryAdaptor")));
+        this.container.put("skuRepositoryCacheAsideAdaptor", skuRepositoryCacheAsideAdaptor);
+
+        SkuRepositoryCacheAsideAdaptor adaptor = (SkuRepositoryCacheAsideAdaptor) container.get("skuRepositoryCacheAsideAdaptor");
+        SkuAppService service = new SkuAppService(adaptor);
+
+        Sku sku = service.get(1L);
+        Assertions.assertNotNull(sku);
+        Assertions.assertEquals(1, sku.id());
+        CacheCommands cacheCommands = (CacheCommands) container.get("cacheWrapper");
+        Assertions.assertEquals("1,some_thing", cacheCommands.get("1"));
+
+        jedis.del("1", "lease:1");
+        jedis.close();
     }
     
     @AfterEach

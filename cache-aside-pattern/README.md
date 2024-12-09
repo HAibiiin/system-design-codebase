@@ -64,3 +64,7 @@ mvn clean test
 在模块 `query-engine` 中 `/cache` 包路径下增加 `LeaseWrapper` 实现，其中 Lua 脚本通过 `LuaScripts.groovy` 存储，这里使用 Groovy 主要利用其 text block 方便编写存储脚本。
 
 [参考阅读](https://haibiiin.github.io/posts/system_design_in_action/The_design_for_ensuring_data_consistency_between_cache_and_primary_replica.html#%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E4%B8%8D%E4%B8%80%E8%87%B4%E5%8F%88%E8%83%BD%E9%81%BF%E5%85%8D%E5%BB%B6%E8%BF%9F%E5%8F%8C%E5%88%A0%E5%B8%A6%E6%9D%A5%E7%9A%84%E6%83%8A%E7%BE%A4%E9%97%AE%E9%A2%98)及效果如图所示：![lease](https://i-blog.csdnimg.cn/direct/d87b8eb7271340e980eeb6a60e665918.gif)
+
+## 应用层样例调整
+
+应用层代码无需变得，只需要调整初始化装配即可。我们通过在 `SkuApplicationServiceTests`中的`testGet_from_SkuRepositoryCacheAsideAdaptor_use_LeaseWrapper()`方法来调整装配模拟这个过程，同样这个测试用例的运行需要依赖本地的 Redis 服务。
