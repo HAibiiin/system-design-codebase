@@ -15,29 +15,20 @@
  */
 package io.haibiiin.github.sku.adaptor;
 
-import io.haibiiin.github.query.engine.DatabasePhase;
+import io.haibiiin.github.query.engine.QueryCommands;
 import io.haibiiin.github.sku.SkuRepository;
 import io.haibiiin.github.sku.domain.Sku;
 
-public class SkuRepositoryAdaptor implements SkuRepository, DatabasePhase<Sku, Long> {
+public class SkuRepositoryCacheAsideAdaptor implements SkuRepository {
     
-    SkuMapper skuMapper;
+    QueryCommands<Sku, Long> queryCommands;
     
-    public SkuRepositoryAdaptor(SkuMapper skuMapper) {
-        this.skuMapper = skuMapper;
+    public SkuRepositoryCacheAsideAdaptor(QueryCommands<Sku, Long> queryCommands) {
+        this.queryCommands = queryCommands;
     }
     
     @Override
     public Sku get(long id) {
-        SkuEntity entity = this.skuMapper.getById(id);
-        if (entity == null) {
-            return null;
-        }
-        return entity.convert();
-    }
-    
-    @Override
-    public Sku get(Long aLong) {
-        return get((long) aLong);
+        return queryCommands.get(id);
     }
 }

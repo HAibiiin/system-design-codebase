@@ -31,4 +31,8 @@ public class Sku {
     public long id() {
         return id;
     }
+    
+    public String name() {
+        return name.name();
+    }
 }

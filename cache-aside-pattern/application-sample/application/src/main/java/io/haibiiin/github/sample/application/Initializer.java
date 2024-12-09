@@ -15,8 +15,13 @@
  */
 package io.haibiiin.github.sample.application;
 
+import io.haibiiin.github.query.engine.SimpleQueryEngine;
+import io.haibiiin.github.query.engine.cache.CacheCommands;
+import io.haibiiin.github.query.engine.cache.map.MapWrapper;
 import io.haibiiin.github.sku.adaptor.SkuMapper;
 import io.haibiiin.github.sku.adaptor.SkuRepositoryAdaptor;
+import io.haibiiin.github.sku.adaptor.SkuRepositoryCacheAsideAdaptor;
+import io.haibiiin.github.sku.adaptor.SkuRepositoryCachePhase;
 import java.io.IOException;
 import java.util.Properties;
 import org.apache.ibatis.io.Resources;
@@ -51,6 +56,18 @@ public class Initializer {
         }
         SkuRepositoryAdaptor skuRepositoryAdaptor = new SkuRepositoryAdaptor(skuMapper);
         this.container.put(beanName, skuRepositoryAdaptor);
+        
+        this.container.put("cacheWrapper", new MapWrapper());
+        
+        beanName = properties.getProperty("SkuRepositoryCacheAsideAdaptor");
+        if (beanName == null || beanName.isEmpty()) {
+            beanName = "skuRepositoryCacheAsideAdaptor";
+        }
+        SkuRepositoryCacheAsideAdaptor skuRepositoryCacheAsideAdaptor = new SkuRepositoryCacheAsideAdaptor(
+                new SimpleQueryEngine<>(
+                        new SkuRepositoryCachePhase((CacheCommands) this.container.get("cacheWrapper")),
+                        skuRepositoryAdaptor));
+        this.container.put(beanName, skuRepositoryCacheAsideAdaptor);
     }
     
     public BeanContainer container() {

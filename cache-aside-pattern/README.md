@@ -52,3 +52,9 @@ mvn clean test
 在单元测试 `SimpleQueryEngineTests.java` 中我们基于 Query Engine 的设计中缓存与数据库操作的两个阶段，提供了两个简易的实现，分别为 `SampleCachePhase` 和 `SampleDatabasePhase` 。
 
 在测试用例 `testJedisWrapper()` 和 `testMapWrapper` 演示了基于 `CacheCommands` 的多样性。其中 `testJedisWrapper()` 的运行需要依赖本地的 Redis 服务。
+
+## 应用层样例调整
+
+提供 `SkuRepository` 接口的新实现 `SkuRepositoryCacheAsideAdaptor`，并在 adaptor 层实现 `CachePhase` 和 `DatabasePhase`，其中 `DatabasePhase` 实现复用 `SkuRepositoryAdaptor`。
+
+其次需要修改 application 层的 `Initializer` 对  `SkuRepositoryCacheAsideAdaptor` 进行组装，关于缓存的部分为了便于单元测试我们使用了基于 ConcurrentMap 实现的 `MapWrapper`。

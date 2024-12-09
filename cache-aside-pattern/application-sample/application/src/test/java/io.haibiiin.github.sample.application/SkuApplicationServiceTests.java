@@ -15,8 +15,10 @@
  */
 package io.haibiiin.github.sample.application;
 
+import io.haibiiin.github.query.engine.cache.CacheCommands;
 import io.haibiiin.github.sample.application.sku.SkuAppService;
 import io.haibiiin.github.sku.adaptor.SkuRepositoryAdaptor;
+import io.haibiiin.github.sku.adaptor.SkuRepositoryCacheAsideAdaptor;
 import io.haibiiin.github.sku.domain.Sku;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -53,6 +55,19 @@ public class SkuApplicationServiceTests extends H2DatabaseEnvironment {
         Sku sku = service.get(1L);
         Assertions.assertNotNull(sku);
         Assertions.assertEquals(1, sku.id());
+    }
+    
+    @DisplayName("Base on ConcurrentMap and database get data")
+    @Test
+    public void testGet_from_SkuRepositoryCacheAsideAdaptor() {
+        SkuRepositoryCacheAsideAdaptor adaptor = (SkuRepositoryCacheAsideAdaptor) container.get("skuRepositoryCacheAsideAdaptor");
+        SkuAppService service = new SkuAppService(adaptor);
+        
+        Sku sku = service.get(1L);
+        Assertions.assertNotNull(sku);
+        Assertions.assertEquals(1, sku.id());
+        CacheCommands cacheCommands = (CacheCommands) container.get("cacheWrapper");
+        Assertions.assertEquals("1,some_thing from cache", cacheCommands.get("1"));
     }
     
     @AfterEach
