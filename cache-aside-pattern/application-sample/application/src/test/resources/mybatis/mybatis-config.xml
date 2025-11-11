@@ -14,6 +14,6 @@
     </environments>
 
     <mappers>
-        <package name="io.haibiiin.github.sku.adaptor"/>
+        <package name="io.github.haibiiin.sku.adaptor"/>
     </mappers>
 </configuration>
